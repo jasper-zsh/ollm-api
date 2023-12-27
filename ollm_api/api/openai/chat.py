@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Union
 import time
@@ -14,7 +14,7 @@ class ToolCall(BaseModel):
     function: FunctionCall
 
 class Message(BaseModel):
-    role: str
+    role: Optional[str]
     content: Optional[str]
     name: Optional[str]
     tool_call_id: Optional[str]
@@ -90,21 +90,7 @@ class ChatCompletionChunkChoice(BaseModel):
 class ChatCompletionChunk(BaseModel):
     id: str
     choices: List[ChatCompletionChunkChoice]
-    created: int
+    created: int = Field(default_factory=lambda: int(time.time()))
     model: str
-    system_fingerprint: str
-    object: str
-
-router = APIRouter()
-
-@router.post('/v1/chat/completions')
-def createChatCompletion(req: ChatCompletionRequest) -> ChatCompletion:
-    return ChatCompletion(
-        model=req.model,
-        choices=[],
-        usage=Usage(
-            completion_tokens=0,
-            prompt_tokens=0,
-            total_tokens=0
-        )
-    )
+    system_fingerprint: Optional[str]
+    object: str = 'chat.completion.chunk'
